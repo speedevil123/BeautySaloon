@@ -1,0 +1,109 @@
+﻿@using HospitalManager.Data;
+@using HospitalManager.Models
+@using HospitalManager.ViewModels;
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore;
+@inject UserManager<AppUser> UserManager
+@model ReceptionViewModel
+@{
+    ViewData["Title"] = "Записи";
+}
+<style>
+    .price {
+        font-size: 1.1em; /* Increase font size */
+        color: #e055b9; /* Set color to a specific shade (e.g., green) */
+        font-weight: bold; /* Make the font bold */
+        text-decoration: underline;
+    }
+
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+    }
+
+    .col {
+        flex: 1;
+    }
+</style>
+
+@{
+    double sum = 0;
+    foreach(var reception in Model.receptions)
+    {
+        sum += reception.Price;
+    }
+}
+<h2 style="margin-top: 15px; text-align: center">Ваши записи</h2>
+<h3 style="margin-top: 15px; text-align: right; text-decoration: underline; color:#e055b9">@sum.00 ₽</h3>
+
+<div class="row">
+    <div class="container">
+        <div class="row">
+            @foreach (var item in Model.receptions)
+            {
+                    <div class="col-lg-6">
+                        <div class="card card-margin">
+                            <div class="card-header no-border d-flex justify-content-between align-items-center">
+                                <h5 class="card-title">@item.Procedure</h5>
+                                <span class="card-subtitle price">@item.Price.00 ₽</span>
+                            </div>
+                            <div class="card-body pt-0">
+                                <div class="widget-49">
+                                    <div class="widget-49-title-wrapper">
+                                        <div class="widget-49-date-primary">
+                                            <span class="widget-49-date-day">@item.Date.Day</span>
+                                            @{
+                                                string monthAbbreviationRussian = item.Date.ToString("MMM", new System.Globalization.CultureInfo("ru-RU"));
+                                                monthAbbreviationRussian = monthAbbreviationRussian.TrimEnd('.'); // Remove the trailing period
+                                            }
+                                            <span class="widget-49-date-month">@monthAbbreviationRussian</span>
+                                        </div>
+                                        <div class="widget-49-meeting-info">
+                                            @if (item.Doctor != null)
+                                            {
+                                                <span class="widget-49-pro-title">
+                                                    @item.Doctor.Surname @item.Doctor.Name[0].  @item.Doctor.MiddleName[0]. (@item.Doctor.Specialization)
+                                                </span>
+                                            }
+                                            <span class="widget-49-meeting-time" style="font-size: 18px; font-weight:500">@item.Date.ToString("HH:mm")</span>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-3">
+                                        <div class="col" style="text-align:left">
+                                            @if (User.Identity.IsAuthenticated)
+                                            {
+                                                @if(item.Date >= DateTime.Now)
+                                                {
+                                                <form asp-controller="Reception" asp-action="RemoveBookReception" method="post">
+                                                        <input type="hidden" name="receptionId" value="@item.Id" />
+                                                        <button type="submit" style="width: 70%" class="btn btn-outline-secondary">Снять запись</button>
+                                                    </form>
+                                                
+                                                }
+                                                else
+                                                {
+                                                    <span>Приём завершен</span>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <a asp-controller="Account" asp-action="Login" class="btn warning">Войдите для записи</a>
+                                            }
+                                        </div>
+                                        @if (User.IsInRole(UserRoles.Admin) || User.IsInRole(UserRoles.Doctor))
+                                        {
+                                            <div class="col" style="text-align:right">
+                                                <a asp-controller="Reception" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Изменить</a>
+                                                <a asp-controller="Reception" asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Удалить</a>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            }
+        </div>
+    </div>
+</div>

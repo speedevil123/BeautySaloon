@@ -1,0 +1,84 @@
+﻿@using HospitalManager.Data;
+@using HospitalManager.Models
+@using HospitalManager.ViewModels;
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore;
+@inject UserManager<AppUser> UserManager
+@model ReceptionViewModel
+@{
+    ViewData["Title"] = "Записи";
+}
+<style>
+    .price {
+        font-size: 1.1em; /* Increase font size */
+        color: #e055b9; /* Set color to a specific shade (e.g., green) */
+        font-weight: bold; /* Make the font bold */
+        text-decoration: underline;
+    }
+
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+    }
+
+    .col {
+        flex: 1;
+    }
+</style>
+
+@{
+    double sum = 0;
+    foreach (var reception in Model.receptions)
+    {
+        sum += reception.Price;
+    }
+}
+<h2 style="margin-top: 15px; text-align: center">Ваши приемы</h2>
+
+<div class="row">
+    <div class="container mt-4">
+        <div class="row">
+            @foreach (var item in Model.receptions)
+            {
+                <div class="col-lg-6">
+                    <div class="card card-margin">
+                        <div class="card-header no-border d-flex justify-content-between align-items-center">
+                            <h5 class="card-title">@item.Procedure</h5>
+                            <span class="card-subtitle price">@item.Price.00 ₽</span>
+                        </div>
+                        <div class="card-body pt-0">
+                            <div class="widget-49">
+                                <div class="widget-49-title-wrapper">
+                                    <div class="widget-49-date-primary">
+                                        <span class="widget-49-date-day">@item.Date.Day</span>
+                                        @{
+                                            string monthAbbreviationRussian = item.Date.ToString("MMM", new System.Globalization.CultureInfo("ru-RU"));
+                                            monthAbbreviationRussian = monthAbbreviationRussian.TrimEnd('.'); // Remove the trailing period
+                                        }
+                                        <span class="widget-49-date-month">@monthAbbreviationRussian</span>
+                                    </div>
+                                    <div class="widget-49-meeting-info">
+                                        @if (item.Client != null)
+                                        {
+                                            <span class="widget-49-pro-title">
+                                                Пациент @item.Client.Surname @item.Client.Name[0].  @item.Client.MiddleName[0]. - @item.Client.BirthDay.Year г.р.
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="widget-49-pro-title" style="color: lightgray">
+                                                Ожидает бронирования
+                                            </span>
+                                        }
+                                        <span class="widget-49-meeting-time" style="font-size: 18px; font-weight:500">@item.Date.ToString("HH:mm")</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,17 @@
+﻿@model IEnumerable<HospitalManager.Models.AppUser>
+@{
+    ViewData["Title"] = "Список пользователей";
+}
+
+<h2 style="margin-top: 15px; text-align: center">Список пользователей</h2>
+<table class="table" style="margin-top: 15px">
+    @foreach (var user in Model)
+    {
+        <tr>
+            <td>@user.Email</td>
+            <td>
+                <a class="btn info btn-sm" asp-action="Edit" asp-route-userid="@user.Id">Права доступа</a>
+            </td>
+        </tr>
+    }
+</table>
